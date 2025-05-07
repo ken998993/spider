@@ -49,7 +49,7 @@ def scrape_video_time():
         # 等待影片頁面完全加載並確保元素可見
         try:
             video_time_element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="movie_player"]/div[30]/div[2]/div[1]/div[1]/span[1]/span[4]'))
+                EC.presence_of_element_located((By.XPATH, '//*[@id="movie_player"]'))
             )
             video_time = video_time_element.text.strip()
             print('video_time', video_time)

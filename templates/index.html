@@ -2,47 +2,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Video Scraper Monitor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask API Example</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f2f2f2;
+            color: #333;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #444;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+
+        .success {
+            background-color: #e0ffe0;
+            border: 1px solid #50c050;
+            color: #206020;
+        }
+
+        .error {
+            background-color: #ffe0e0;
+            border: 1px solid #e06060;
+            color: #802020;
+        }
+
+        .loading {
+            background-color: #fff5cc;
+            border: 1px solid #e0c000;
+            color: #665500;
+        }
+
+        #time {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Flask API!</h1>
-    <p id="message">Loading message...</p>
-    <p id="video-time">Video time: Loading...</p>
+    <h1>🎥 YouTube Video Monitor</h1>
 
-    <!-- 按鈕 -->
-    <button id="fetchButton">觸發spider</button>
+    <div id="status-message" class="status loading">等待中...</div>
+    <p id="video-time">Video time: --</p>
+    <div id="time">Last updated: --</div>
 
-    <!-- 顯示成功或錯誤訊息的區域 -->
-    <div id="status-message" style="margin-top: 20px;"></div>
+    <button id="fetchButton">手動觸發</button>
 
     <script>
-        // 綁定按鈕的點擊事件
-        document.getElementById('fetchButton').addEventListener('click', function() {
+        const statusDiv = document.getElementById('status-message');
+        const videoTimeP = document.getElementById('video-time');
+        const timeP = document.getElementById('time');
+    
+        function fetchData() {
+            statusDiv.textContent = "執行中...";
+            statusDiv.className = "status loading";
+    
             fetch('/scrape')
                 .then(response => response.json())
                 .then(data => {
-                    // 更新訊息內容
-                    document.getElementById('message').textContent = data.message;
-                    document.getElementById('video-time').textContent = 'Video time: ' + data.video_time;
-                    
-                    // 顯示成功訊息
-                    const statusMessage = document.getElementById('status-message');
-                    statusMessage.textContent = "成功: " + data.message;
-                    statusMessage.style.color = "green";  // 成功訊息顯示綠色
+                    const now = new Date().toLocaleString();
+                    timeP.textContent = 'Last updated: ' + now;
+    
+                    if (data.status === 'success') {
+                        videoTimeP.textContent = 'Video time: ' + data.video_time;
+                        statusDiv.textContent = "✅ 成功：" + data.message;
+                        statusDiv.className = "status success";
+                    } else {
+                        videoTimeP.textContent = '--';
+                        statusDiv.textContent = "❌ 錯誤：" + data.message;
+                        if (data.error_message) {
+                            statusDiv.textContent += "（" + data.error_message + "）";
+                        }
+                        statusDiv.className = "status error";
+                    }
                 })
                 .catch(error => {
-                    // 錯誤處理
+                    const now = new Date().toLocaleString();
+                    timeP.textContent = 'Last updated: ' + now;
+    
+                    statusDiv.textContent = "❌ 錯誤：發生異常";
                     console.error('Error:', error);
-                    document.getElementById('message').textContent = 'Failed to load data';
-                    document.getElementById('video-time').textContent = ''; // 清空 video time
-                    
-                    // 顯示錯誤訊息
-                    const statusMessage = document.getElementById('status-message');
-                    statusMessage.textContent = "錯誤: 發生錯誤，請再試一次。";
-                    statusMessage.style.color = "red";  // 錯誤訊息顯示紅色
+                    statusDiv.className = "status error";
                 });
-        });
+        }
+    
+        // 綁定按鈕
+        document.getElementById('fetchButton').addEventListener('click', fetchData);
+    
+        // 頁面載入時立即執行一次
+        fetchData();
+    
+        // 🚫 不要自動輪詢：刪除這一行 ↓↓↓
+        // setInterval(fetchData, 60000);
     </script>
+    
 </body>
 </html>
