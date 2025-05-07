@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask API Example</title>
+</head>
+<body>
+    <h1>Welcome to the Flask API!</h1>
+    <p id="message">Loading message...</p>
+    <p id="video-time">Video time: Loading...</p>
+
+    <!-- 按鈕 -->
+    <button id="fetchButton">觸發spider</button>
+
+    <!-- 顯示成功或錯誤訊息的區域 -->
+    <div id="status-message" style="margin-top: 20px;"></div>
+
+    <script>
+        // 綁定按鈕的點擊事件
+        document.getElementById('fetchButton').addEventListener('click', function() {
+            fetch('/scrape')
+                .then(response => response.json())
+                .then(data => {
+                    // 更新訊息內容
+                    document.getElementById('message').textContent = data.message;
+                    document.getElementById('video-time').textContent = 'Video time: ' + data.video_time;
+                    
+                    // 顯示成功訊息
+                    const statusMessage = document.getElementById('status-message');
+                    statusMessage.textContent = "成功: " + data.message;
+                    statusMessage.style.color = "green";  // 成功訊息顯示綠色
+                })
+                .catch(error => {
+                    // 錯誤處理
+                    console.error('Error:', error);
+                    document.getElementById('message').textContent = 'Failed to load data';
+                    document.getElementById('video-time').textContent = ''; // 清空 video time
+                    
+                    // 顯示錯誤訊息
+                    const statusMessage = document.getElementById('status-message');
+                    statusMessage.textContent = "錯誤: 發生錯誤，請再試一次。";
+                    statusMessage.style.color = "red";  // 錯誤訊息顯示紅色
+                });
+        });
+    </script>
+</body>
+</html>
