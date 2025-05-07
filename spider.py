@@ -1,3 +1,4 @@
+from datetime import timedelta
 import time
 import random
 from bs4 import BeautifulSoup
@@ -6,6 +7,7 @@ import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+import pickle
 
 # 使用 undetected-chromedriver 啟動 Chrome
 options = uc.ChromeOptions()
@@ -31,23 +33,24 @@ driver.get("https://www.google.com")
 # 等待頁面載入
 time.sleep(2)
 
-video_url = ""
+video_url = "https://www.youtube.com/watch?v=E3p-bgAQrXc"
 # 等待頁面加載
 driver.get(video_url)
 time.sleep(5)
 
 # 展開「顯示更多」描述欄
-try:
-    more_button = driver.find_element(By.CSS_SELECTOR, "tp-yt-paper-button#more")
-    more_button.click()
-    time.sleep(2)
-except:
-    pass  # 有些影片沒有描述欄
+# try:
+#     more_button = driver.find_element(By.CSS_SELECTOR, "tp-yt-paper-button#more")
+#     more_button.click()
+#     time.sleep(2)
+# except:
+#     pass  # 有些影片沒有描述欄
 
 soup = BeautifulSoup(driver.page_source, "html.parser")
 
-# 抓取所需時間
-video_time = driver.find_element(By.XPATH, '//*[@id="movie_player"]/div[36]/div[2]/div[1]/div[1]/span[1]/span[4]').text.strip()
+# 抓取所需時間//*[@id="movie_player"]/div[30]/div[2]/div[1]/div[1]/span[1]/span[4]
+video_time = driver.find_element(By.XPATH, '//*[@id="movie_player"]/div[30]/div[2]/div[1]/div[1]/span[1]/span[4]').text.strip()
+print('video_time',video_time)
 h, m, s = map(int, video_time.split(':'))
 duration = timedelta(hours=h, minutes=m, seconds=s)
 time.sleep(duration.total_seconds() + random.uniform(5, 16))
